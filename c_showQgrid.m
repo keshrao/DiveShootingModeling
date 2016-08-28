@@ -14,6 +14,7 @@ yspace = 2*ymin:2*ymax;
 
 figure(2), clf, hold on
 axis(2.*[xmin xmax ymin ymax])
+set(gca, 'XTick', 2*xmin:2*xmax, 'YTick', 2*ymin:2*ymax)
 grid on
 
 
@@ -24,7 +25,7 @@ grid on
 % 5 = UL,  6 = UR,  7 = DR,  8 = DL
 
 uv_vec = [1 0; 0 -1; -1 0; 0 1;...
-            1 -1; -1 -1; -1 1; 1 1];
+            1 -1; -1 -1; -1 1; 1 1]; % why are these signs flipped? 
 
 
 %%

@@ -5,7 +5,7 @@ function [Qgrid, numIter] = b_staticTarget(Qgrid)
 
 % run using something like this:
 % [Qgrid] = b_staticTarget();
-% for i = 1:1000
+% for i = 1:5000
 %     [Qgrid, stepsTaken(i)] = b_staticTarget(Qgrid);
 % end
 % c_showQgrid(Qgrid)
@@ -37,11 +37,13 @@ while sum(cursorXY == targXY) == 2
     cursorXY = [randi([xmin xmax]), randi([ymin ymax])];
 end
 
-figure(1), clf, hold on
-plot(targXY(1), targXY(2), 'r.','MarkerSize',30)
-hcur = plot(cursorXY(1), cursorXY(2), 'bo','MarkerSize',10, 'LineWidth',2);
-axis([xmin xmax ymin ymax])
-grid on
+if isPlot
+    figure(1), clf, hold on
+    plot(targXY(1), targXY(2), 'r.','MarkerSize',30)
+    hcur = plot(cursorXY(1), cursorXY(2), 'bo','MarkerSize',10, 'LineWidth',2);
+    axis([xmin xmax ymin ymax])
+    grid on
+end
 
 %% All possible cursor positions
 
@@ -64,6 +66,9 @@ end
 
 % Qgrid [=] For every spatial location the cursor is in, there's an
 % appropriate action that can be taken
+
+% note that there will be no action taken when the cursor is on the target
+Qgrid(find(xspace==0),find(yspace==0),:) = 0;
 
 %% Iterate through time and figure out cursor actions
 
@@ -143,7 +148,7 @@ while sum(cursorXY == targXY) < 2 && size(cursorMAT,1) < 200
     
     % determine reward
     if sum(cursorXY == targXY) == 2 
-        rew = 100; % 
+        rew = 50; % 
     else
         rew = -1;
     end
@@ -181,10 +186,12 @@ end
 
 %% plot the resulting cursor positions
 
-figure(1),
-plot(cursorMAT(:,1), cursorMAT(:,2), 'b.', 'MarkerSize', 20)
-plot(cursorMAT(:,1), cursorMAT(:,2), 'b-', 'LineWidth', 0.75)
+if isPlot
+    figure(1),
+    plot(cursorMAT(:,1), cursorMAT(:,2), 'b.', 'MarkerSize', 20)
+    plot(cursorMAT(:,1), cursorMAT(:,2), 'b-', 'LineWidth', 0.75)
+    pause(1);
+end
 
 fprintf('Number of Steps Taken: %i\n', numIter)
 
-pause(1);

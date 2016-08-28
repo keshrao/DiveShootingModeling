@@ -1,15 +1,14 @@
-function Qgrid = b_staticTarget(Qgrid)
+function [Qgrid, numIter] = b_staticTarget(Qgrid)
 % static target and time can go for longer
 % move cursor randomly till target is acquired
 % use Q-learning to move the cursor in a more systemic way
 
 % run using something like this:
-% Qgrid = b_staticTarget(Qgrid);
-% for i = 1:100
-%     Qgrid = b_staticTarget(Qgrid);
+% [Qgrid] = b_staticTarget();
+% for i = 1:1000
+%     [Qgrid, stepsTaken(i)] = b_staticTarget(Qgrid);
 % end
-
-clc
+% c_showQgrid(Qgrid)
 
 %% create the 2D space
 
@@ -23,6 +22,8 @@ ymax = 3;
 
 alpha = 0.2; % learning rate
 gam = 0.75; % discounting rate
+
+isPlot = false; % refers to the continous plotting that occurs through trials
 
 %% Target Position and Initial Cursor Position
 
@@ -53,7 +54,12 @@ yspace = 2*ymin:2*ymax;
 
 if nargin == 0
     % initialize a matrix of actions, all equally weighted actions
-    Qgrid = ones([length(xspace),length(yspace),16]);
+    useSteps = false;
+    if useSteps
+        Qgrid = ones([length(xspace),length(yspace),16]);
+    else
+        Qgrid = ones([length(xspace),length(yspace),8]);
+    end
 end
 
 % Qgrid [=] For every spatial location the cursor is in, there's an
@@ -65,6 +71,7 @@ end
 cursorMAT = [];
 cursorMAT = [cursorMAT; cursorXY];
 
+numIter = 0;
 % iterate till cursor intersects the target
 while sum(cursorXY == targXY) < 2 && size(cursorMAT,1) < 200
     
@@ -89,7 +96,7 @@ while sum(cursorXY == targXY) < 2 && size(cursorMAT,1) < 200
     
     % try to integrate a multiplier
     step = 1;
-    if act - 8 > 0
+    if act > 8
         act = act - 8;
         step = 2;
     end
@@ -146,8 +153,8 @@ while sum(cursorXY == targXY) < 2 && size(cursorMAT,1) < 200
     disty = round(targXY(2) - cursorXY(2));
     
     % find the corresponding Q matrix indecies
-    xi_p = find(xspace == distx);
-    yi_p = find(yspace == disty);
+    xi_p = xspace == distx;
+    yi_p = yspace == disty;
     
     % restore act to it's stepped value
     if step == 2
@@ -162,9 +169,14 @@ while sum(cursorXY == targXY) < 2 && size(cursorMAT,1) < 200
     % plotting
     cursorMAT = [cursorMAT; cursorXY]; %#ok<AGROW>
     
-    set(hcur, 'XData', cursorXY(1), 'YData', cursorXY(2))
-    drawnow
-    pause(0.01)
+    if isPlot
+        set(hcur, 'XData', cursorXY(1), 'YData', cursorXY(2))
+        drawnow
+        pause(0.01)
+    end
+    
+    % keep track of the number of steps taken
+    numIter = numIter + 1;
 end
 
 %% plot the resulting cursor positions
@@ -173,3 +185,6 @@ figure(1),
 plot(cursorMAT(:,1), cursorMAT(:,2), 'b.', 'MarkerSize', 20)
 plot(cursorMAT(:,1), cursorMAT(:,2), 'b-', 'LineWidth', 0.75)
 
+fprintf('Number of Steps Taken: %i\n', numIter)
+
+pause(1);

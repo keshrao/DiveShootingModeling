@@ -23,8 +23,8 @@ grid on
 % 1 = left, 2 = up, 3 = right, 4 = down
 % 5 = UL,  6 = UR,  7 = DR,  8 = DL
 
-uv_vec = [-1 0; 0 1; 1 0; 0 -1;...
-            -1 1; 1 1; 1 -1; -1 -1];
+uv_vec = [1 0; 0 -1; -1 0; 0 1;...
+            1 -1; -1 -1; -1 1; 1 1];
 
 
 %%
@@ -33,7 +33,8 @@ for row = 1:length(xspace)
     for col = 1:length(yspace)
         
         [~, dec] = max(Qgrid(row,col,:));
-        quiver(xspace(row),yspace(col), uv_vec(dec,1), uv_vec(dec,2), 'b')
+        q = quiver(xspace(row),yspace(col), uv_vec(dec,1), uv_vec(dec,2), 'b');
+        set(q, 'MaxHeadSize', 1)
         drawnow
     end
 end

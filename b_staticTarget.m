@@ -5,7 +5,7 @@ function [Qgrid, numIter] = b_staticTarget(Qgrid)
 
 % run using something like this:
 % [Qgrid] = b_staticTarget();
-% for i = 1:5000
+% for i = 1:2000
 %     [Qgrid, stepsTaken(i)] = b_staticTarget(Qgrid);
 % end
 % c_showQgrid(Qgrid)
@@ -20,7 +20,7 @@ ymax = 3;
 
 %% Q learning params
 
-alpha = 0.2; % learning rate
+alpha = 0.5; % learning rate
 gam = 0.75; % discounting rate
 
 isPlot = false; % refers to the continous plotting that occurs through trials

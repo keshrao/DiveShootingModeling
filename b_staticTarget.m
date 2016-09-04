@@ -4,19 +4,21 @@ function [Qgrid, gridspace] = b_staticTarget(Qgrid)
 % use Q-learning to move the cursor in a more systemic way
 
 % run using something like this:
-% [Qgrid, gridspace] = b_staticTarget();
-% for i = 1:1000
-%     [Qgrid, gridspace] = b_staticTarget(Qgrid);
-% end
-% c_showQgrid(Qgrid, gridspace)
+if false
+    [Qgrid, gridspace] = b_staticTarget();
+    for i = 1:20000
+        [Qgrid, gridspace] = b_staticTarget(Qgrid);
+    end
+    c_showQgrid(Qgrid, gridspace)
+end
 
 %% create the 2D space
 
-xmin = -1;
-xmax = 1;
+xmin = -10;
+xmax = 10;
 
-ymin = -1;
-ymax = 1;
+ymin = -10;
+ymax = 10;
 
 gridspace = [xmin, xmax, ymin, ymax];
 %% Q learning params

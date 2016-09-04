@@ -1,23 +1,24 @@
-function [Qgrid, numIter] = b_staticTarget(Qgrid)
+function [Qgrid, gridspace] = b_staticTarget(Qgrid)
 % static target and time can go for longer
 % move cursor randomly till target is acquired
 % use Q-learning to move the cursor in a more systemic way
 
 % run using something like this:
-% [Qgrid] = b_staticTarget();
-% for i = 1:2000
-%     [Qgrid, stepsTaken(i)] = b_staticTarget(Qgrid);
+% [Qgrid, gridspace] = b_staticTarget();
+% for i = 1:1000
+%     [Qgrid, gridspace] = b_staticTarget(Qgrid);
 % end
-% c_showQgrid(Qgrid)
+% c_showQgrid(Qgrid, gridspace)
 
 %% create the 2D space
 
-xmin = -3;
-xmax = 3;
+xmin = -1;
+xmax = 1;
 
-ymin = -3;
-ymax = 3;
+ymin = -1;
+ymax = 1;
 
+gridspace = [xmin, xmax, ymin, ymax];
 %% Q learning params
 
 alpha = 0.5; % learning rate
@@ -68,7 +69,7 @@ end
 % appropriate action that can be taken
 
 % note that there will be no action taken when the cursor is on the target
-Qgrid(find(xspace==0),find(yspace==0),:) = 0;
+Qgrid(xspace==0,yspace==0,:) = 0;
 
 %% Iterate through time and figure out cursor actions
 
@@ -81,8 +82,10 @@ numIter = 0;
 while sum(cursorXY == targXY) < 2 && size(cursorMAT,1) < 200
     
     % determine the state for time t-1
-    distx = round(targXY(1) - cursorXY(1));
-    disty = round(targXY(2) - cursorXY(2));
+    %distx = round(targXY(1) - cursorXY(1));
+    %disty = round(targXY(2) - cursorXY(2));
+    distx = round(cursorXY(1) - targXY(1));
+    disty = round(cursorXY(2) - targXY(2));
     
     % find the corresponding Q matrix indecies
     xi = find(xspace == distx);

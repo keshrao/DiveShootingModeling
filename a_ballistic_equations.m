@@ -2,12 +2,15 @@ clear, clc
 
 %% create the 2D space
 
+xmin = 0;
 xmax = 100;
+
+ymin = 0;
 ymax = 50;
 
 %% Target trajectory
 
-xTarg = linspace(0,xmax,50);
+xTarg = linspace(xmin,xmax,50);
 
 g = 9.8; % gravitational constant
 y0 = 0.1; % initial height
@@ -17,12 +20,12 @@ vel = 30; % velocity of launch
 yfunc = @(xin) y0 + xin.*tand(theta) - g.*xin.^2./(2*(vel*cosd(theta)).^2);
 
 % actual x vector
-xTarg(yfunc(xTarg) < 0) = nan;
+xTarg(yfunc(xTarg) < ymin) = nan;
 yTarg = yfunc(xTarg);
 
 figure(1), clf
 plot(xTarg, yTarg, 'r.','MarkerSize',20)
-axis([0 xmax 0 ymax])
+axis([xmin xmax ymin ymax])
 grid on
 
 %% All possible cursor positions
@@ -46,7 +49,7 @@ RT = 4;
 
 % cursor positions
 curxy = nan(sum(~isnan(xTarg)), 2);
-curxy(2:RT,:) = repmat([0,0],RT,1);
+curxy(1:RT,:) = repmat([0,0],RT,1);
 
 % iterate
 for t = RT:sum(~isnan(xTarg))

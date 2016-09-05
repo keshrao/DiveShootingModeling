@@ -1,15 +1,15 @@
-function [Qgrid, gridspace] = b_staticTarget(Qgrid)
+function [Qgrid, gridspace] = a_staticTarget(Qgrid)
 % static target and time can go for longer
 % move cursor randomly till target is acquired
 % use Q-learning to move the cursor in a more systemic way
 
 % run using something like this:
 if false
-    [Qgrid, gridspace] = b_staticTarget();
-    for i = 1:20000
-        [Qgrid, gridspace] = b_staticTarget(Qgrid);
+    [Qgrid, gridspace] = a_staticTarget();
+    for i = 1:2000
+        [Qgrid, gridspace] = a_staticTarget(Qgrid);
     end
-    c_showQgrid(Qgrid, gridspace)
+    b_showQgrid(Qgrid, gridspace)
 end
 
 %% create the 2D space

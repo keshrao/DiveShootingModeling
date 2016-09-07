@@ -9,11 +9,13 @@ xmax = gridspace(2);
 ymin = gridspace(3);
 ymax = gridspace(4);
 
+div = gridspace(5);
+
 xrng = xmax - xmin;
 yrng = ymax - ymin;
 
-xspace = -xrng:xrng;
-yspace = -yrng:yrng;
+xspace = roundn(-xrng:div:xrng,log10(div));
+yspace = roundn(-yrng:div:yrng,log10(div));
 
 
 %% Map the actions to a set of arrow directions
@@ -24,7 +26,8 @@ yspace = -yrng:yrng;
 
 uv_vec = [-1 0; 0 1; 1 0; 0 -1;...
             -1 1; 1 1; 1 -1; -1 -1]; 
-        
+uv_vec = uv_vec .* div;
+
 %% 
 
 figure(2), clf, hold on

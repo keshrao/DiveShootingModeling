@@ -14,11 +14,11 @@ end
 
 %% create the 2D space
 
-xmin = -10;
-xmax = 10;
+xmin = -5;
+xmax = 5;
 
-ymin = -10;
-ymax = 10;
+ymin = -5;
+ymax = 5;
 
 gridspace = [xmin, xmax, ymin, ymax];
 %% Q learning params
@@ -44,7 +44,7 @@ if isPlot
     figure(1), clf, hold on
     plot(targXY(1), targXY(2), 'r.','MarkerSize',30)
     hcur = plot(cursorXY(1), cursorXY(2), 'bo','MarkerSize',10, 'LineWidth',2);
-    axis([xmin xmax ymin ymax])
+    axis([xmin-2 xmax+2 ymin-2 ymax+2])
     grid on
 end
 
@@ -84,8 +84,6 @@ numIter = 0;
 while sum(cursorXY == targXY) < 2 && size(cursorMAT,1) < 200
     
     % determine the state for time t-1
-    %distx = round(targXY(1) - cursorXY(1));
-    %disty = round(targXY(2) - cursorXY(2));
     distx = round(cursorXY(1) - targXY(1));
     disty = round(cursorXY(2) - targXY(2));
     

@@ -1,4 +1,4 @@
-function c_showQgrid(Qgrid,gridspace)
+function b_showQgrid(Qgrid,gridspace)
 % use quiver plot to show the convergence of the Q learning grid
 
 %% recreate the x/y space
@@ -21,9 +21,6 @@ yspace = 2*ymin:2*ymax;
 
 uv_vec = [-1 0; 0 1; 1 0; 0 -1;...
             -1 1; 1 1; 1 -1; -1 -1]; 
-        
-% why are these signs flipped? 
-%uv_vec = -1.*uv_vec;
 
 %% 
 

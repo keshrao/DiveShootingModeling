@@ -6,11 +6,12 @@ function [Qgrid, gridspace] = b_ballSpace_StaticTarget(Qgrid)
 % run using something like this:
 if false
     [Qgrid, gridspace] = b_ballSpace_StaticTarget();
-    for i = 1:1000
+    for i = 1:20000
+        fprintf('Iter: %i, ', i)
         [Qgrid, gridspace] = b_ballSpace_StaticTarget(Qgrid);
     end
     c_showQgrid(Qgrid, gridspace)
-    save('Qgrid_9-4.mat','Qgrid','gridspace')
+    save('Qgrid_9-7.mat','Qgrid','gridspace')
     d_trackBallistic(Qgrid,gridspace)
 end
 
@@ -22,7 +23,9 @@ xmax = 10;
 ymin = 0;
 ymax = 5;
 
-gridspace = [xmin, xmax, ymin, ymax];
+div = 0.1;
+
+gridspace = [xmin, xmax, ymin, ymax, div];
 %% Q learning params
 
 alpha = 0.5; % learning rate
@@ -32,15 +35,19 @@ isPlot = false; % refers to the continous plotting that occurs through trials
 
 %% Target Position and Initial Cursor Position
 
-targXY = [randi([xmin xmax]), randi([ymin ymax])];
+% r = a + (b-a).*rand(N,1)
+targXY = [xmin + (xmax-xmin)*rand, ymin + (ymax-ymin)*rand];
+% round to the appropriate number of decimals
+targXY = roundn(targXY, log10(div));
 
-cursorXY = [randi([xmin xmax]), randi([ymin ymax])];
+cursorXY = [xmin + (xmax-xmin)*rand, ymin + (ymax-ymin)*rand];
 
 % if the cursor and the target are overlaid, just pick a new initial
 % position
-while sum(cursorXY == targXY) == 2
-    cursorXY = [randi([xmin xmax]), randi([ymin ymax])];
+while norm(cursorXY - targXY) < div
+    cursorXY = [xmin + (xmax-xmin)*rand, ymin + (ymax-ymin)*rand];
 end
+cursorXY = roundn(cursorXY, log10(div));
 
 if isPlot
     figure(1), clf, hold on
@@ -55,8 +62,8 @@ end
 xrng = xmax - xmin;
 yrng = ymax - ymin;
 
-xspace = -xrng:xrng;
-yspace = -yrng:yrng;
+xspace = roundn(-xrng:div:xrng,log10(div));
+yspace = roundn(-yrng:div:yrng,log10(div));
 
 % there are eight possible actions for now
 % 1 = left, 2 = up, 3 = right, 4 = down
@@ -81,18 +88,15 @@ Qgrid(xspace==0,yspace==0,:) = 0;
 %% Iterate through time and figure out cursor actions
 
 % store all the cursor positions
-cursorMAT = [];
-cursorMAT = [cursorMAT; cursorXY];
+cursorMAT = cursorXY;
 
 numIter = 0;
 % iterate till cursor intersects the target
-while sum(cursorXY == targXY) < 2 && size(cursorMAT,1) < 200
+while norm(cursorXY - targXY) > div && size(cursorMAT,1) < 100/div
     
     % determine the state for time t-1
-    %distx = round(targXY(1) - cursorXY(1));
-    %disty = round(targXY(2) - cursorXY(2));
-    distx = round(cursorXY(1) - targXY(1));
-    disty = round(cursorXY(2) - targXY(2));
+    distx = roundn(cursorXY(1) - targXY(1),log10(div));
+    disty = roundn(cursorXY(2) - targXY(2),log10(div));
     
     % find the corresponding Q matrix indecies
     xi = find(xspace == distx);
@@ -110,10 +114,10 @@ while sum(cursorXY == targXY) < 2 && size(cursorMAT,1) < 200
     act = datasample(decivec, 1);
     
     % try to integrate a multiplier
-    step = 1;
+    step = div;
     if act > 8
         act = act - 8;
-        step = 2;
+        step = 2*div;
     end
     
     % generate action
@@ -157,15 +161,15 @@ while sum(cursorXY == targXY) < 2 && size(cursorMAT,1) < 200
     end %switch
     
     % determine reward
-    if sum(cursorXY == targXY) == 2 
+    if norm(cursorXY - targXY) < div 
         rew = 50; % 
     else
         rew = -1;
     end
     
     % find out what the next state will be
-    distx = round(targXY(1) - cursorXY(1));
-    disty = round(targXY(2) - cursorXY(2));
+    distx = roundn(targXY(1) - cursorXY(1),log10(div));
+    disty = roundn(targXY(2) - cursorXY(2),log10(div));
     
     % find the corresponding Q matrix indecies
     xi_p = xspace == distx;
@@ -179,7 +183,6 @@ while sum(cursorXY == targXY) < 2 && size(cursorMAT,1) < 200
     % update the Q matrix
     % Q(s,a) <- (1-alpha)*Q(s,a) + alpha*(rew + gam*max(Q(s',a')))
     Qgrid(xi,yi,act) = (1-alpha)*Qgrid(xi,yi,act) + alpha*(rew + gam*max(Qgrid(xi_p,yi_p,:)));
-    
     
     % plotting
     cursorMAT = [cursorMAT; cursorXY]; %#ok<AGROW>

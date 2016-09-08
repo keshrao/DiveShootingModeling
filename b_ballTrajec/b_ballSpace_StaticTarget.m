@@ -6,12 +6,12 @@ function [Qgrid, gridspace] = b_ballSpace_StaticTarget(Qgrid)
 % run using something like this:
 if false
     [Qgrid, gridspace] = b_ballSpace_StaticTarget();
-    for i = 1:20000
+    for i = 1:100000
         fprintf('Iter: %i, ', i)
         [Qgrid, gridspace] = b_ballSpace_StaticTarget(Qgrid);
     end
-    c_showQgrid(Qgrid, gridspace)
     save('Qgrid_9-7.mat','Qgrid','gridspace')
+    c_showQgrid(Qgrid, gridspace)
     d_trackBallistic(Qgrid,gridspace)
 end
 
@@ -31,7 +31,7 @@ gridspace = [xmin, xmax, ymin, ymax, div];
 alpha = 0.5; % learning rate
 gam = 0.75; % discounting rate
 
-isPlot = true; % refers to the continous plotting that occurs through trials
+isPlot = false; % refers to the continous plotting that occurs through trials
 
 %% Target Position and Initial Cursor Position
 
@@ -86,7 +86,7 @@ Qgrid(xspace==0,yspace==0,:) = 0;
 % store all the cursor positions
 cursorMAT = cursorXY;
 
-numIter = 0;
+numIter = 1;
 % iterate till cursor intersects the target
 while norm(cursorXY - targXY) > div && size(cursorMAT,1) < 100/div
     
@@ -98,8 +98,11 @@ while norm(cursorXY - targXY) > div && size(cursorMAT,1) < 100/div
     xi = find(xspace == distx);
     yi = find(yspace == disty);
     
-    % pick the state-action pair
+    % pick the state-action pair - several problems in this part
     actvec = squeeze(Qgrid(xi,yi,:)); % all possible actions and their respective rewards
+    if sum(actvec < 0) > 0 % if there are negative values, rescale
+        actvec = actvec + abs(min(actvec));
+    end
     actvec = round((actvec./sum(actvec)).*100); % ensure they are all probabilities
     decivec = [];
     for d = 1:length(actvec) % iterate through the possible decisions
@@ -194,6 +197,8 @@ while norm(cursorXY - targXY) > div && size(cursorMAT,1) < 100/div
     numIter = numIter + 1;
 end
 
+fprintf('Rew: %4.2f, ', rew)
+
 %% plot the resulting cursor positions
 
 if isPlot
@@ -203,5 +208,5 @@ if isPlot
     pause(1);
 end
 
-fprintf('Number of Steps Taken: %i\n', numIter)
+fprintf('NumSteps: %i\n', numIter)
 

@@ -31,7 +31,7 @@ gridspace = [xmin, xmax, ymin, ymax, div];
 alpha = 0.5; % learning rate
 gam = 0.75; % discounting rate
 
-isPlot = false; % refers to the continous plotting that occurs through trials
+isPlot = true; % refers to the continous plotting that occurs through trials
 
 %% Target Position and Initial Cursor Position
 
@@ -71,12 +71,8 @@ yspace = roundn(-yrng:div:yrng,log10(div));
 
 if nargin == 0
     % initialize a matrix of actions, all equally weighted actions
-    useSteps = false;
-    if useSteps
-        Qgrid = ones([length(xspace),length(yspace),16]);
-    else
-        Qgrid = ones([length(xspace),length(yspace),8]);
-    end
+    numSteps = 5;
+    Qgrid = ones([length(xspace),length(yspace),8*numSteps]);
 end
 
 % Qgrid [=] For every spatial location the cursor is in, there's an
@@ -111,14 +107,12 @@ while norm(cursorXY - targXY) > div && size(cursorMAT,1) < 100/div
     end
     
     % pick a decision
-    act = datasample(decivec, 1);
+    act_I = datasample(decivec, 1);
     
     % try to integrate a multiplier
-    step = div;
-    if act > 8
-        act = act - 8;
-        step = 2*div;
-    end
+    step = idivide(int32(act_I),int32(8)) + 1;
+    step = double(step)*div;
+    act = mod(act_I,8)+1;
     
     % generate action
     switch act
@@ -161,8 +155,16 @@ while norm(cursorXY - targXY) > div && size(cursorMAT,1) < 100/div
     end %switch
     
     % determine reward
-    if norm(cursorXY - targXY) < div 
-        rew = 50; % 
+    if norm(cursorXY - targXY) < div
+        rew = 50; % base reward for reaching target
+        
+        % ideal distance from start to finish
+        idealDist = roundn(norm(cursorMAT(1,:) - targXY),log10(div));
+        idealSteps = round(idealDist / div);
+        
+        % augment reward based on ideal steps
+        rew = rew * (idealSteps/numIter);
+        
     else
         rew = -1;
     end
@@ -175,14 +177,9 @@ while norm(cursorXY - targXY) > div && size(cursorMAT,1) < 100/div
     xi_p = xspace == distx;
     yi_p = yspace == disty;
     
-    % restore act to it's stepped value
-    if step == 2
-        act = act + 8;
-    end
-    
     % update the Q matrix
     % Q(s,a) <- (1-alpha)*Q(s,a) + alpha*(rew + gam*max(Q(s',a')))
-    Qgrid(xi,yi,act) = (1-alpha)*Qgrid(xi,yi,act) + alpha*(rew + gam*max(Qgrid(xi_p,yi_p,:)));
+    Qgrid(xi,yi,act_I) = (1-alpha)*Qgrid(xi,yi,act_I) + alpha*(rew + gam*max(Qgrid(xi_p,yi_p,:)));
     
     % plotting
     cursorMAT = [cursorMAT; cursorXY]; %#ok<AGROW>

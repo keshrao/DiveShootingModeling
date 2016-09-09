@@ -52,9 +52,12 @@ for row = 1:length(xspace)
         
         [direc, dec] = max(Qgrid(row,col,:));
         
+        step = idivide(int32(dec),int32(8)) + 1;
+        act = mod(dec,8)+1;
+        
         if direc ~= 0
-            umat(row,col) = uv_vec(dec,1);
-            vmat(row,col) = uv_vec(dec,2);
+            umat(row,col) = uv_vec(act,1)*step;
+            vmat(row,col) = uv_vec(act,2)*step;
         else
             umat(row,col) = 0;
             vmat(row,col) = 0;
@@ -68,27 +71,3 @@ set(q, 'MaxHeadSize', 1, 'Color','b')
 
 % highlight the center location
 plot(0,0,'ko','LineWidth',2)
-
-%% use stupid plotting method
-
-if false % - only use if if you want to check the plotting accuracy
-    for row = 1:length(xspace)
-        for col = 1:length(yspace)
-
-            % find the indexed position for the space location
-            xi = xspace == xspace(row);
-            yi = yspace == yspace(col);
-
-            % get the decision
-            [direc, dec] = max(Qgrid(xi,yi,:));
-
-            if direc == 0
-                continue
-            end
-
-            q = quiver(xspace(row),yspace(col), uv_vec(dec,1), uv_vec(dec,2), 'r');
-            set(q, 'MaxHeadSize', 1)
-            drawnow
-        end
-    end
-end

@@ -6,11 +6,11 @@ function [Qgrid, gridspace] = b_ballSpace_StaticTarget(Qgrid)
 % run using something like this:
 if false
     [Qgrid, gridspace] = b_ballSpace_StaticTarget();
-    for i = 1:100000
+    for i = 1:10000
         fprintf('Iter: %i, ', i)
         [Qgrid, gridspace] = b_ballSpace_StaticTarget(Qgrid);
     end
-    save('Qgrid_9-7.mat','Qgrid','gridspace')
+    save('Qgrid_9-9.mat','Qgrid','gridspace')
     c_showQgrid(Qgrid, gridspace)
     d_trackBallistic(Qgrid,gridspace)
 end
@@ -73,6 +73,7 @@ if nargin == 0
     % initialize a matrix of actions, all equally weighted actions
     numSteps = 5;
     Qgrid = ones([length(xspace),length(yspace),8*numSteps]);
+    Qgrid = Qgrid ./ size(Qgrid,3);
 end
 
 % Qgrid [=] For every spatial location the cursor is in, there's an
@@ -183,6 +184,14 @@ while norm(cursorXY - targXY) > div && size(cursorMAT,1) < 100/div
     % update the Q matrix
     % Q(s,a) <- (1-alpha)*Q(s,a) + alpha*(rew + gam*max(Q(s',a')))
     Qgrid(xi,yi,act_I) = (1-alpha)*Qgrid(xi,yi,act_I) + alpha*(rew + gam*max(Qgrid(xi_p,yi_p,:)));
+    
+    % rescale to make it probabilities
+    thisActVec = squeeze(Qgrid(xi,yi,:));
+    thisActVec = (thisActVec - min(thisActVec))./(max(thisActVec) - min(thisActVec));
+    thisActVec = thisActVec ./ sum(thisActVec);
+    
+    % reset the Qgrid row
+    Qgrid(xi,yi,:) = thisActVec;
     
     % plotting
     cursorMAT = [cursorMAT; cursorXY]; %#ok<AGROW>

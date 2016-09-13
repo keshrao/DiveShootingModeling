@@ -68,8 +68,14 @@ for t = RT:length(xTarg)-1
 
     % get the decision
     [~, dec] = max(Qgrid(xi,yi,:));
-    xmove = uv_vec(dec,1);
-    ymove = uv_vec(dec,2);
+    step = double(idivide(int32(dec),int32(8)) + 1);
+    act = mod(dec,8);
+    if act == 0
+        act = 8;
+    end
+    
+    xmove = uv_vec(act,1)*step;
+    ymove = uv_vec(act,2)*step;
 
     if cursorXY(t,1) + xmove >= xmin && cursorXY(t,1) + xmove <= xmax && ...
             cursorXY(t,2) + ymove >= ymin && cursorXY(t,2) + ymove <= ymax 

@@ -50,18 +50,21 @@ vmat = [];
 for row = 1:length(xspace)
     for col = 1:length(yspace)
         
-        [direc, dec] = max(Qgrid(row,col,:));
+        [probval, dec] = max(Qgrid(row,col,:));
         
-        step = idivide(int32(dec),int32(8)) + 1;
-        act = mod(dec,8)+1;
-        
-        if direc ~= 0
+        step = double(idivide(int32(dec),int32(8)) + 1);
+        act = mod(dec,8);
+        if act == 0
+            act = 8;
+        end
+    
+        %if direc ~= 0
             umat(row,col) = uv_vec(act,1)*step;
             vmat(row,col) = uv_vec(act,2)*step;
-        else
-            umat(row,col) = 0;
-            vmat(row,col) = 0;
-        end
+        %else
+        %    umat(row,col) = 0;
+        %    vmat(row,col) = 0;
+        %end
         
     end
 end

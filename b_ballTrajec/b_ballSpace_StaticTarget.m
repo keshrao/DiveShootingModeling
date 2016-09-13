@@ -3,18 +3,6 @@ function [Qgrid, gridspace] = b_ballSpace_StaticTarget(Qgrid)
 % move cursor randomly till target is acquired
 % use Q-learning to move the cursor in a more systemic way
 
-% run using something like this:
-if false
-    [Qgrid, gridspace] = b_ballSpace_StaticTarget();
-    for i = 1:10000
-        fprintf('Iter: %i, ', i)
-        [Qgrid, gridspace] = b_ballSpace_StaticTarget(Qgrid);
-    end
-    save('Qgrid_9-9.mat','Qgrid','gridspace')
-    c_showQgrid(Qgrid, gridspace)
-    d_trackBallistic(Qgrid,gridspace)
-end
-
 %% create the 2D space
 
 xmin = 0;
@@ -23,7 +11,7 @@ xmax = 10;
 ymin = 0;
 ymax = 5;
 
-div = 0.1;
+div = 1;
 
 gridspace = [xmin, xmax, ymin, ymax, div];
 %% Q learning params
@@ -89,7 +77,7 @@ cursorMAT = cursorXY;
 
 numIter = 1;
 % iterate till cursor intersects the target
-while norm(cursorXY - targXY) > div && size(cursorMAT,1) < 100/div
+while norm(cursorXY - targXY) >= div && size(cursorMAT,1) < 100/div
     
     % determine the state for time t-1
     distx = roundn(cursorXY(1) - targXY(1),log10(div));
@@ -101,22 +89,15 @@ while norm(cursorXY - targXY) > div && size(cursorMAT,1) < 100/div
     
     % pick the state-action pair - several problems in this part
     actvec = squeeze(Qgrid(xi,yi,:)); % all possible actions and their respective rewards
-    if sum(actvec < 0) > 0 % if there are negative values, rescale
-        actvec = actvec + abs(min(actvec));
-    end
-    actvec = round((actvec./sum(actvec)).*100); % ensure they are all probabilities
-    decivec = [];
-    for d = 1:length(actvec) % iterate through the possible decisions
-       decivec = [decivec, d.*ones(1,actvec(d))];
-    end
-    
-    % pick a decision
-    act_I = datasample(decivec, 1);
-    
+    act_I = find(mnrnd(1,actvec));
+
     % try to integrate a multiplier
     step = idivide(int32(act_I),int32(8)) + 1;
     step = double(step)*div;
-    act = mod(act_I,8)+1;
+    act = mod(act_I,8);
+    if act == 0
+        act = 8;
+    end
     
     % generate action
     switch act

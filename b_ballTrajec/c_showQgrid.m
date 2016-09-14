@@ -24,13 +24,18 @@ yspace = roundn(-yrng:div:yrng,log10(div));
 % 1 = left, 2 = up, 3 = right, 4 = down
 % 5 = UL,  6 = UR,  7 = DR,  8 = DL
 
-uv_vec = [-1 0; 0 1; 1 0; 0 -1;...
-            -1 1; 1 1; 1 -1; -1 -1]; 
+uv_vec = [-1 0; 0 1; 1  0;  0 -1;...
+          -1 1; 1 1; 1 -1; -1 -1]; 
 uv_vec = uv_vec .* div;
 
 %% 
 
 figure(2), clf, hold on
+axis([-xrng-1 xrng+1 -yrng-1 yrng+1])
+set(gca, 'XTick', -xrng:xrng, 'YTick', -yrng:yrng)
+grid on
+
+figure(3), clf, hold on
 axis([-xrng-1 xrng+1 -yrng-1 yrng+1])
 set(gca, 'XTick', -xrng:xrng, 'YTick', -yrng:yrng)
 grid on
@@ -44,13 +49,22 @@ q = quiver(ones(size(xm)),ones(size(ym)), ...
                 nan(size(xm)), nan(size(ym))); 
 
 %[~, decmat] = max(Qgrid,[],3);
-umat = [];
-vmat = [];
+umat = zeros(size(xm'));
+vmat = zeros(size(ym'));
 
 for row = 1:length(xspace)
     for col = 1:length(yspace)
         
-        [probval, dec] = max(Qgrid(row,col,:));
+        thisStateActVals = squeeze(Qgrid(row,col,:));
+        maxVal = max(thisStateActVals);
+        idx = find(thisStateActVals == maxVal);
+        
+        if length(idx) > 1
+            dec = datasample(idx,1);
+        else
+            dec = idx;
+        end
+%         [probval, dec] = max(Qgrid(row,col,:));
         
         step = double(idivide(int32(dec),int32(8)) + 1);
         act = mod(dec,8);
@@ -61,6 +75,7 @@ for row = 1:length(xspace)
         %if direc ~= 0
             umat(row,col) = uv_vec(act,1)*step;
             vmat(row,col) = uv_vec(act,2)*step;
+            
         %else
         %    umat(row,col) = 0;
         %    vmat(row,col) = 0;

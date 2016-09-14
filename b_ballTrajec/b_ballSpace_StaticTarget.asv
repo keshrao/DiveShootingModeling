@@ -89,7 +89,6 @@ while roundn(norm(cursorXY - targXY),log10(div)) >= div && size(cursorMAT,1) < 1
     
     % pick the state-action pair - several problems in this part
     actvec = squeeze(Qgrid(xi,yi,:)); % all possible actions and their respective rewards
-    
     act_I = find(mnrnd(1,actvec));
 
     % try to integrate a multiplier
@@ -150,6 +149,7 @@ while roundn(norm(cursorXY - targXY),log10(div)) >= div && size(cursorMAT,1) < 1
         
         % augment reward based on ideal steps
         rew = rew * (idealSteps/numIter);
+        
     else
         rew = -1;
     end
@@ -161,6 +161,10 @@ while roundn(norm(cursorXY - targXY),log10(div)) >= div && size(cursorMAT,1) < 1
     % find the corresponding Q matrix indecies
     xi_p = xspace == distx;
     yi_p = yspace == disty;
+    
+    % we make a choice here, with epsilon probability, we choose a random
+    % action as opposed to the max 
+    
     
     % update the Q matrix
     % Q(s,a) <- (1-alpha)*Q(s,a) + alpha*(rew + gam*max(Q(s',a')))

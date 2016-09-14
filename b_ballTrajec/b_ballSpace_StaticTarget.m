@@ -11,13 +11,13 @@ xmax = 10;
 ymin = 0;
 ymax = 5;
 
-div = 1;
+div = .1;
 
 gridspace = [xmin, xmax, ymin, ymax, div];
 %% Q learning params
 
-alpha = 0.5; % learning rate
-gam = 0.75; % discounting rate
+alpha = 0.1; % learning rate
+gam = 0.25; % discounting rate
 
 isPlot = false; % refers to the continous plotting that occurs through trials
 
@@ -77,7 +77,7 @@ cursorMAT = cursorXY;
 
 numIter = 1;
 % iterate till cursor intersects the target
-while norm(cursorXY - targXY) >= div && size(cursorMAT,1) < 100/div
+while roundn(norm(cursorXY - targXY),log10(div)) >= div && size(cursorMAT,1) < 100/div
     
     % determine the state for time t-1
     distx = roundn(cursorXY(1) - targXY(1),log10(div));

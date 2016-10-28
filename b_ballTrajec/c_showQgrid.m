@@ -30,10 +30,6 @@ uv_vec = uv_vec .* div;
 
 %% 
 
-figure(2), clf, hold on
-axis([-xrng-1 xrng+1 -yrng-1 yrng+1])
-set(gca, 'XTick', -xrng:xrng, 'YTick', -yrng:yrng)
-grid on
 
 figure(3), clf, hold on
 axis([-xrng-1 xrng+1 -yrng-1 yrng+1])

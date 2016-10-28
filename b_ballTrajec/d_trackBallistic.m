@@ -35,7 +35,8 @@ xTargFull = xspace;
 g = 9.8; % gravitational constant
 y0 = 0; % initial height
 theta = randi([45 75],1); % incidence of launch
-vel = randi([8 10],1); % velocity of launch
+%vel = randi([8 10],1); % velocity of launch
+vel = randi([20 30],1); % velocity of launch
 
 yfunc = @(xin) y0 + xin.*tand(theta) - g.*xin.^2./(2*(vel*cosd(theta)).^2);
 

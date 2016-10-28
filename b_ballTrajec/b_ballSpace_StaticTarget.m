@@ -1,4 +1,4 @@
-function [Qgrid, gridspace] = b_ballSpace_StaticTarget(Qgrid, epsilon)
+function [Qgrid, gridspace] = b_ballSpace_StaticTarget(Qgrid)
 % static target and time can go for longer
 % move cursor randomly till target is acquired
 % use Q-learning to move the cursor in a more systemic way
@@ -6,17 +6,17 @@ function [Qgrid, gridspace] = b_ballSpace_StaticTarget(Qgrid, epsilon)
 %% create the 2D space
 
 xmin = 0;
-xmax = 10;
+xmax = 100;
 
 ymin = 0;
-ymax = 5;
+ymax = 50;
 
-div = .1;
+div = 1;
 
 gridspace = [xmin, xmax, ymin, ymax, div];
 %% Q learning params
 
-alpha = 0.1; % learning rate
+alpha = 0.5; % learning rate
 gam = 0.9; % discounting rate
 
 isPlot = false; % refers to the continous plotting that occurs through trials

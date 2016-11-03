@@ -32,7 +32,7 @@ uv_vec = uv_vec .* div;
 
 
 figure(3), clf, hold on
-axis([-xrng-1 xrng+1 -yrng-1 yrng+1])
+%axis([-xrng-1 xrng+1 -yrng-1 yrng+1])
 set(gca, 'XTick', -xrng:xrng, 'YTick', -yrng:yrng)
 grid on
 
@@ -56,7 +56,8 @@ for row = 1:length(xspace)
         idx = find(thisStateActVals == maxVal);
         
         if length(idx) > 1
-            dec = datasample(idx,1);
+            % dec = datasample(idx,1);
+            dec = idx(1);
         else
             dec = idx;
         end

@@ -37,6 +37,12 @@ while norm(cursorXY - targXY) < div
 end
 cursorXY = roundn(cursorXY, log10(div));
 
+
+% keshalert - testing
+targXY = [0 0];
+cursorXY = [20 10];
+
+
 if isPlot
     figure(1), clf, hold on
     plot(targXY(1), targXY(2), 'r.','MarkerSize',30)

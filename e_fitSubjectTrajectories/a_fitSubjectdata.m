@@ -6,10 +6,9 @@ load('subjectdata.mat');
 %% parameters to calibrate
 
 FR = 0.016;
-%RT = round(randi([200,400])/1000/FR); % reaction time divide by FR to get indexes delay, changed within loop
-spdfactor = 0.1; % increment with each iteration
-smoothspd = .7; % amount to which previous spd influences
-noiselevel = 0.1;
+spdfactor = .1; % slow down the speed, add momentum
+noiselevel = 0.01; % sensorimotor noise
+targPred = 10; % time points of visual prediction
 
 
 %%
@@ -41,26 +40,25 @@ for trl = 1:50 % 50 trls per block
     
     %% iterations through trial
     azWsim(1) = azW(1); elWsim(1) = elW(1);
-    dxpre = 0; dypre = 0;
+    rho_pre = 0;
     
-    for t = 2:trltime
+    for t = 2:trltime-targPred
         
         if t < RT
             dx = 0; dy = 0;
-            dxp = 0; dyp = 0;
-            amp = 0;
+            rho = 0;
         else
             
-            dxc = azT(t) - azWsim(t-1);
-            dyc = elT(t) - elWsim(t-1);
-            amp = sqrt(dx.^2 + dy.^2);
+            dxc = azT(t+targPred) - azWsim(t-1);
+            dyc = elT(t+targPred) - elWsim(t-1);
             
             % direction of intended movement
-            [theta, rho] = cart2pol(dxc, dyc);
-            [dxp, dyp] = pol2cart(theta, rho*spdfactor);
+            [theta, rho_p] = cart2pol(dxc, dyc);
+            rho = (spdfactor*rho_p + rho_pre)/2;
+            [dxp, dyp] = pol2cart(theta, rho);
             
-            dx = dxp - sign(dxp)*smoothspd*dxpre + normrnd(0,noiselevel);
-            dy = dyp - sign(dyp)*smoothspd*dypre + normrnd(0,noiselevel);
+            dx = dxp + normrnd(0,noiselevel);
+            dy = dyp + normrnd(0,noiselevel);
             
         end % RT
         
@@ -68,8 +66,7 @@ for trl = 1:50 % 50 trls per block
         elWsim(t) = elWsim(t-1) + dy;
         spdsim(t) = sqrt((dx/FR).^2 + (dy/FR).^2);
         
-        dxpre = dxp;
-        dypre = dyp;
+        rho_pre = rho;
     end % trial (t)
     
     

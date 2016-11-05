@@ -16,10 +16,9 @@ spd = nan(1,trltime);
 
 %% parameters to calibrate
 RT = round(randi([200,400])/1000/FR); % reaction time divide by FR to get indexes delay
-spdfactor = 0.1; % increment with each iteration
-smoothspd = 0; % amount to which previous spd influences 
-noiselevel = 0.01;
-
+spdfactor = .05; % slow down the speed, add momentum
+noiselevel = 0.01; % sensorimotor noise
+targPred = 10; % time points of visual prediction
 
 %% online plotting
 figure(2), clf, hold on
@@ -32,26 +31,31 @@ drawnow
 
 %% iterations through trial
 azW(1) = 0; elW(1) = -4;
-dxpre = 0; dypre = 0;
+rho_pre = 0;
 
-for t = 2:trltime
+
+for t = 2:trltime-targPred
     
     if t < RT
         dx = 0; dy = 0;
         dxp = 0; dyp = 0;
-        amp = 0;
+        rho = 0;
     else
         
-        dxc = azT(t) - azW(t-1);
-        dyc = elT(t) - elW(t-1);
-        amp = sqrt(dx.^2 + dy.^2);
+        dxc = azT(t+targPred) - azW(t-1);
+        dyc = elT(t+targPred) - elW(t-1);
         
         % direction of intended movement
-        [theta, rho] = cart2pol(dxc, dyc);
-        [dxp, dyp] = pol2cart(theta, rho*spdfactor);
+        [theta, rho_p] = cart2pol(dxc, dyc);
         
-        dx = dxp - sign(dxp)*smoothspd*dxpre + normrnd(0,noiselevel);
-        dy = dyp - sign(dyp)*smoothspd*dypre + normrnd(0,noiselevel);
+        %rho = (spdfactor*rho_p + (1-spdfactor)*rho_pre)/2;
+        rho = (spdfactor*rho_p + rho_pre)/2;
+       
+        [dxp, dyp] = pol2cart(theta, rho);
+        
+        
+        dx = dxp + normrnd(0,noiselevel);
+        dy = dyp + normrnd(0,noiselevel);
         
     end % RT
     
@@ -61,16 +65,14 @@ for t = 2:trltime
     
     plot(azT(t), elT(t), 'o','MarkerSize', 20, 'MarkerFaceColor', 'b', 'MarkerEdgeColor', 'k')
     plot(azW(t), elW(t), 'o','MarkerSize', 20, 'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'k')
-    set(hq, 'XData', azW(t-1), 'YData', elW(t-1), 'UData', dx*100, 'VData', dy*100)
+    set(hq, 'XData', azW(t-1), 'YData', elW(t-1), 'UData', dx*20, 'VData', dy*20)
     drawnow
     
-    dxpre = dxp;
-    dypre = dyp;
+    rho_pre = rho;
 end % trial (t)
 
 %%
 figure(1), clf, 
-
 subplot(2,1,1), hold on
 plot(azT, elT, 'ok','MarkerSize', 10, 'MarkerFaceColor', 'b', 'MarkerEdgeColor', 'k', 'LineWidth',2)
 plot(azW, elW, 'ok','MarkerSize', 10, 'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'k', 'LineWidth',2)
@@ -80,7 +82,7 @@ axis([-40 40 -5 10])
 set(gca,'FontSize', 20)
 
 subplot(2,1,2)
-plot((0:trltime-1).*FR, spd, 'o-k', 'LineWidth', 2, 'MarkerSize', 15, 'MarkerFaceColor', 'g' )
+plot((0:trltime-1).*FR, spd, 'o-k', 'LineWidth', 2, 'MarkerSize', 10, 'MarkerFaceColor', 'g' )
 xlim([0 1.5])
 ylim([0 150])
 ylabel('Angular Speed (deg/sec)')
